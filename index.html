@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>School Service Desk – ระบบแจ้งซ่อมโรงเรียน</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans Thai",Tahoma,sans-serif;background:#f4f6f3;color:#1c2b25;line-height:1.6}
+header{background:#1f4d3f;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+#banner:not(:empty){background:#fef3c7;color:#b45309;text-align:center;font-size:.9rem;padding:4px}
+main{max-width:1000px;margin:0 auto;padding:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #dbe2dd;border-radius:10px;padding:18px;margin-bottom:16px}
+.narrow{max-width:420px;margin:20px auto}
+h2{margin:0 0 12px;font-size:1.1rem}
+label{display:block;margin:12px 0 4px;font-weight:500;font-size:.92rem}
+input,select,textarea{width:100%;font:inherit;padding:9px;border:1px solid #dbe2dd;border-radius:6px;background:#fff;color:inherit}
+textarea{min-height:84px}
+button{font:inherit;cursor:pointer}
+.pri{background:#1f4d3f;color:#fff;border:0;padding:10px 18px;border-radius:6px;font-weight:700;margin-top:14px}
+.link{background:none;border:0;color:#5d6b64;text-decoration:underline;margin-left:8px}
+.out{background:none;border:1px solid #cfe0d6;color:#fff;padding:4px 10px;border-radius:6px;margin-left:8px}
+.chip{background:#fff;border:1px solid #dbe2dd;border-radius:99px;padding:3px 12px;margin:0 6px 8px 0}.chip.on{background:#1f4d3f;color:#fff}
+.pwbox{position:relative}.pwbox input{padding-right:50px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:#fff;color:#1c2b25;border:1px solid #5d6b64;border-radius:6px;padding:0}
+.eye svg{width:20px;height:20px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid #dbe2dd;vertical-align:top}
+tr[data-id]{cursor:pointer}tr.sel,tr[data-id]:hover{background:#f4f6f3}
+.scroll{overflow-x:auto}
+.badge{padding:2px 10px;border-radius:99px;font-size:.8rem;font-weight:700;white-space:nowrap}
+.s-pending{background:#fef3c7;color:#b45309}.s-in_progress{background:#dbeafe;color:#1d4ed8}.s-completed{background:#dcfce7;color:#15803d}
+.item{border:1px solid #dbe2dd;border-radius:8px;padding:12px;margin-bottom:10px;background:#f4f6f3}
+.muted{color:#5d6b64;font-size:.85rem}.err{color:#b91c1c;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid #dbe2dd;border-radius:10px;padding:14px}.stat b{display:block;font-size:2rem;line-height:1.1}
+img.pic{max-width:100%;max-height:160px;border-radius:6px;display:block;margin-top:8px}
+.opt-note{display:none}
+input:not([type=radio]):not([type=file]),select,textarea{border:2px solid #8a9a91;font-size:1rem}
+input:not([type=radio]):focus,select:focus,textarea:focus{border-color:#1f4d3f}
+select{padding:11px;cursor:pointer}option{font-size:1.05rem;padding:8px}
+fieldset{border:0;margin:14px 0 0;padding:0;min-width:0}legend{font-weight:700;margin-bottom:6px;padding:0}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.opt{position:relative;margin:0;font-weight:500}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.opt span{display:flex;align-items:center;min-height:48px;padding:10px 14px;border:2px solid #8a9a91;border-radius:10px;background:#fff;font-size:1rem;cursor:pointer}
+.opt:hover span{border-color:#1f4d3f}
+.opt input:checked+span{border-color:#1f4d3f;background:#e6f2ec;box-shadow:0 0 0 2px #1f4d3f inset;font-weight:700}
+.opt input:checked+span::before{content:"✔";margin-right:8px}
+.opt input:focus-visible+span{outline:3px solid #f2c94c;outline-offset:2px}
+.o-in_progress input:checked+span{border-color:#1d4ed8;background:#dbeafe;color:#1d4ed8;box-shadow:0 0 0 2px #1d4ed8 inset}
+.o-completed input:checked+span{border-color:#15803d;background:#dcfce7;color:#15803d;box-shadow:0 0 0 2px #15803d inset}
+.lock{background:#dcfce7;color:#15803d;border-radius:8px;padding:12px;font-weight:700;margin-top:12px}
+.tabs2{margin-bottom:14px}.act{white-space:nowrap;text-align:right}
+.sm{font:inherit;font-size:.85rem;padding:5px 10px;border:2px solid #8a9a91;border-radius:6px;background:#fff;color:#1c2b25;margin-left:6px}
+.sm:hover{border-color:#1f4d3f}.sm.danger{color:#b91c1c;border-color:#b91c1c}
+.pic.big{max-height:320px}.resetf{background:#f4f6f3;border-radius:8px;padding:10px 12px}
+.dlg.left{text-align:left}.row2{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.row2 .pri{margin-top:0}.pri.dng{background:#b91c1c}
+.dlg .ic.bad{background:#fee2e2;color:#b91c1c}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;animation:fd .15s}
+.dlg{background:#fff;color:#1c2b25;border-radius:14px;padding:26px 28px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.dlg .ic{width:56px;height:56px;border-radius:50%;background:#dcfce7;color:#15803d;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.dlg .ic svg{width:30px;height:30px}.dlg h2{margin:0 0 4px}.dlg p{margin:0 0 4px}
+@keyframes fd{from{opacity:0}to{opacity:1}}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,tr:focus-visible{outline:3px solid #f2c94c;outline-offset:2px}
+</style>
+</head>
+<body>
+<header><b>School Service Desk</b><span id="who"></span></header>
+<div id="banner"></div>
+<main id="app"></main>
+<script src="config.js"></script>
+<script>
+const API=(window.API_URL||'').replace(/\/$/,''),$=s=>document.querySelector(s);
+const ST={pending:'รอรับเรื่อง (Pending)',in_progress:'กำลังดำเนินการ (In Progress)',completed:'ดำเนินการเสร็จแล้ว (Completed)'};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=t=>new Date(t).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const badge=s=>`<span class="badge s-${s}">${ST[s]}</span>`;
+const log=l=>l.map(x=>`<div class="muted">${fmt(x.updated_at)} – ${ST[x.new_status].split(' (')[0]}: ${esc(x.note)} (${esc(x.full_name)})</div>`).join('');
+const pw=(id,ac='current-password')=>`<div class="pwbox"><input type="password" id="${id}" required autocomplete="${ac}"><button type="button" class="eye" aria-label="แสดงรหัสผ่าน" onclick="const p=this.previousElementSibling;p.type=p.type==='password'?'text':'password'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>`;
+const item=r=>`<div class="item"><b>#${r.id} ${esc(r.cat)}</b> ${badge(r.status)}<div class="muted">${esc(r.location)}</div><p>${esc(r.description)}</p>${r.image_data?`<img class="pic" src="${r.image_data}" alt="รูปที่แนบ">`:''}${log(r.log||[])}</div>`;
+const shrink=f=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const k=Math.min(1,800/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.7))};i.onerror=()=>no(new Error('ไฟล์รูปไม่ถูกต้อง'));i.src=URL.createObjectURL(f)});
+
+let S={token:null,user:null,mode:'login',msg:'',sel:null,f:'',tab:'summary',resetId:null};
+try{S.token=localStorage.getItem('t');S.user=JSON.parse(localStorage.getItem('u'))}catch{}
+
+async function api(p,o={}){
+  $('#banner').textContent='กำลังเชื่อมต่อเซิร์ฟเวอร์… (ครั้งแรกหลังว่างนานอาจใช้เวลาประมาณ 1 นาที)';
+  try{
+    const r=await fetch(API+p,{...o,headers:{'Content-Type':'application/json',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:o.body?JSON.stringify(o.body):undefined});
+    const d=await r.json().catch(()=>({}));
+    if(r.status===401&&S.token){logout();throw new Error(d.error||'หมดอายุ กรุณาเข้าสู่ระบบใหม่')}
+    if(!r.ok)throw new Error(d.error||'เกิดข้อผิดพลาด');
+    return d;
+  }catch(e){if(e instanceof TypeError)throw new Error('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบ config.js และ CORS_ORIGIN');throw e}
+  finally{$('#banner').textContent=''}
+}
+function logout(){S.token=S.user=null;S.sel=null;try{localStorage.clear()}catch{}render()}
+function saveLogin(d){S.token=d.token;S.user=d.user;S.msg='';try{localStorage.setItem('t',d.token);localStorage.setItem('u',JSON.stringify(d.user))}catch{}}
+
+function popup(t,m,bad){
+  const o=document.createElement('div');o.className='ov';o.setAttribute('role','alertdialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',t);
+  o.innerHTML=`<div class="dlg"><div class="ic${bad?' bad':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${bad?'M6 6l12 12M18 6L6 18':'M5 13l4 4L19 7'}"/></svg></div><h2>${esc(t)}</h2><p class="muted">${esc(m)}</p><button class="pri" id="pk">ตกลง</button></div>`;
+  document.body.appendChild(o);
+  const x=()=>o.remove();
+  o.querySelector('#pk').onclick=x;o.onclick=e=>{if(e.target===o)x()};o.querySelector('#pk').focus();
+  setTimeout(x,bad?5000:2500);
+}
+function ask(title,msg,opt={}){   // กล่องยืนยัน/กรอกข้อความ (แทน confirm/prompt)
+  return new Promise(res=>{
+    const o=document.createElement('div');o.className='ov';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',title);
+    o.innerHTML=`<form class="dlg left"><h2>${esc(title)}</h2><p class="muted" style="white-space:pre-line">${esc(msg||'')}</p>${opt.input!==undefined?`<input id="ai" value="${esc(opt.input)}" required>`:''}<div class="row2"><button type="button" class="sm" id="ac">ยกเลิก</button><button class="pri${opt.danger?' dng':''}" id="ak">ตกลง</button></div></form>`;
+    document.body.appendChild(o);
+    const done=v=>{o.remove();res(v)};
+    o.querySelector('#ac').onclick=()=>done(null);
+    o.querySelector('form').onsubmit=e=>{e.preventDefault();done(opt.input!==undefined?o.querySelector('#ai').value.trim():true)};
+    (o.querySelector('#ai')||o.querySelector('#ak')).focus();
+  });
+}
+function authView(){
+  const reg=S.mode==='reg';
+  $('#app').innerHTML=`<form class="card narrow" id="af"><h2>${reg?'สมัครสมาชิก (คุณครู)':'เข้าสู่ระบบ'}</h2>${reg?'<label for="nm">ชื่อ-นามสกุล</label><input id="nm" required>':''}<label for="un">ชื่อผู้ใช้</label><input id="un" required autocomplete="username"><label for="pw">รหัสผ่าน${reg?' (อย่างน้อย 6 ตัว)':''}</label>${pw('pw')}<div class="err" role="alert">${esc(S.msg)}</div><button class="pri">${reg?'สมัครสมาชิก':'เข้าสู่ระบบ'}</button><button type="button" class="link" id="sw">${reg?'มีบัญชีแล้ว? เข้าสู่ระบบ':'ยังไม่มีบัญชี? สมัครสมาชิก'}</button></form>`;
+  $('#sw').onclick=()=>{S.mode=reg?'login':'reg';S.msg='';render()};
+  $('#af').onsubmit=async e=>{e.preventDefault();const username=$('#un').value.trim(),password=$('#pw').value;let ok=false;
+    try{
+      if(reg)await api('/api/register',{method:'POST',body:{full_name:$('#nm').value,username,password}});
+      saveLogin(await api('/api/login',{method:'POST',body:{username,password}}));ok=true;
+    }catch(x){S.msg=x.message}
+    render();if(ok)popup(reg?'สมัครสมาชิกและเข้าสู่ระบบสำเร็จ':'เข้าสู่ระบบสำเร็จ','ยินดีต้อนรับ '+S.user.name)};
+}
+
+async function teacherView(){
+  const [cats,mine]=await Promise.all([api('/api/categories'),api('/api/requests/mine')]);
+  $('#app').innerHTML=`<div class="grid"><form class="card" id="rf"><h2>แจ้งปัญหาใหม่</h2><fieldset><legend>ประเภทปัญหา</legend><div class="opts">${cats.map((c,i)=>`<label class="opt"><input type="radio" name="c" value="${c.id}"${i?'':' checked'}><span>${esc(c.name)}</span></label>`).join('')}</div></fieldset><label for="rm">ห้อง / สถานที่</label><input id="rm" required placeholder="เช่น ห้อง 304"><label for="d">อาการ / รายละเอียด</label><textarea id="d" required></textarea><label for="im">แนบรูปภาพ (ไม่บังคับ)</label><input id="im" type="file" accept="image/*"><div class="err" id="er" role="alert"></div><button class="pri">ส่งเรื่องแจ้งซ่อม</button></form><section class="card"><h2>เรื่องที่ฉันแจ้ง</h2>${mine.length?mine.map(item).join(''):'<p class="muted">ยังไม่มีเรื่องที่แจ้ง</p>'}</section></div>`;
+  $('#rf').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button.pri');b.disabled=true;
+    try{const f=$('#im').files[0];
+      const d=await api('/api/requests',{method:'POST',body:{category_id:+document.querySelector('input[name=c]:checked').value,location:$('#rm').value.trim(),description:$('#d').value.trim(),image_data:f?await shrink(f):null}});
+      render();popup('แจ้งเรื่องสำเร็จ','เลขที่ #'+d.id+' ถูกส่งถึงเจ้าหน้าที่แล้ว ติดตามสถานะได้ในรายการ "เรื่องที่ฉันแจ้ง"');
+    }catch(x){$('#er').textContent=x.message;b.disabled=false}};
+}
+
+const ORD=['pending','in_progress','completed'];
+function staffForm(r,staff){
+  const cur=`<p>สถานะปัจจุบัน: ${badge(r.status)}</p>`;
+  if(r.status==='completed')return cur+`<div class="lock" role="status">✔ งานนี้ดำเนินการเสร็จแล้ว ไม่สามารถแก้ไขสถานะได้อีก</div>`;
+  const nx=ORD.slice(ORD.indexOf(r.status)+1);
+  return cur+`<label for="as">มอบหมายให้</label><select id="as"><option value="0">– ยังไม่มอบหมาย –</option>${staff.map(s=>`<option value="${s.id}"${s.id===r.assigned_to?' selected':''}>${esc(s.full_name)}</option>`).join('')}</select><fieldset><legend>เปลี่ยนสถานะเป็น <span class="muted">(อัปเดตแต่ละสถานะได้ครั้งเดียว ย้อนกลับไม่ได้)</span></legend><div class="opts">${nx.map((k,i)=>`<label class="opt o-${k}"><input type="radio" name="ss" value="${k}"${i?'':' checked'}><span>${ST[k]}</span></label>`).join('')}</div></fieldset><label for="nt">บันทึกผลการแก้ไข</label><textarea id="nt"></textarea><button class="pri" id="sv">บันทึกการอัปเดต</button>`;
+}
+async function staffView(){
+  const [rows,staff]=await Promise.all([api('/api/requests'+(S.f?'?status='+S.f:'')),api('/api/staff')]);
+  let r=null,det='<p class="muted">เลือกรายการทางซ้ายเพื่อรับเรื่อง มอบหมายงาน และบันทึกผล</p>';
+  if(S.sel){try{r=await api('/api/requests/'+S.sel)}catch{S.sel=null}}
+  if(r)det=`<h2>#${r.id} ${esc(r.cat)}</h2><div class="muted">${esc(r.location)} · แจ้งโดย ${esc(r.reporter)}</div><p>${esc(r.description)}</p>${r.image_data?`<img class="pic" src="${r.image_data}" alt="รูปที่แนบ">`:''}${staffForm(r,staff)}<div style="margin-top:12px">${log(r.log)}</div>`;
+  $('#app').innerHTML=`<div class="grid"><section class="card scroll"><div>${['',...Object.keys(ST)].map(k=>`<button class="chip${S.f===k?' on':''}" data-f="${k}">${k?ST[k].split(' (')[0]:'ทั้งหมด'}</button>`).join('')}</div><table><thead><tr><th>เลขที่</th><th>เรื่อง</th><th>สถานะ</th></tr></thead><tbody>${rows.map(x=>`<tr tabindex="0" data-id="${x.id}" class="${x.id===S.sel?'sel':''}"><td>#${x.id}</td><td>${esc(x.cat)}<div class="muted">${esc(x.location)} · ${esc(x.full_name)}</div></td><td>${badge(x.status)}</td></tr>`).join('')}</tbody></table></section><section class="card">${det}</section></div>`;
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{S.f=b.dataset.f;S.sel=null;render()});
+  document.querySelectorAll('tr[data-id]').forEach(t=>{const go=()=>{S.sel=+t.dataset.id;render()};t.onclick=go;t.onkeydown=e=>{if(e.key==='Enter')go()}});
+  if(r&&$('#sv'))$('#sv').onclick=async function(){const b=this,ns=document.querySelector('input[name=ss]:checked').value;b.disabled=true;
+    try{await api('/api/requests/'+r.id,{method:'PATCH',body:{status:ns,assigned_to:+$('#as').value,note:$('#nt').value}});render();popup('อัปเดตสถานะสำเร็จ','เรื่อง #'+r.id+' เปลี่ยนเป็น "'+ST[ns].split(' (')[0]+'"')}
+    catch(x){popup('ไม่สำเร็จ',x.message,1);b.disabled=false}};
+}
+
+const TABS={summary:'รายงาน',requests:'รายการเรื่องทั้งหมด',catalog:'ประเภท/ฝ่าย',users:'บัญชีผู้ใช้'};
+const ROLE={teacher:'ครู',staff:'เจ้าหน้าที่',admin:'ผู้ดูแลระบบ'};
+const dopts=(ds,sel)=>ds.map(d=>`<option value="${d.id}"${d.id===sel?' selected':''}>${esc(d.name)}</option>`).join('');
+
+async function adminSummary(){
+  const d=await api('/api/admin/summary'),n={pending:0,in_progress:0,completed:0};
+  d.counts.forEach(c=>n[c.status]=c.t);
+  return `<div class="stats"><div class="stat"><b>${n.pending+n.in_progress+n.completed}</b>เรื่องทั้งหมด</div>${Object.keys(ST).map(k=>`<div class="stat"><b>${n[k]}</b>${ST[k]}</div>`).join('')}</div><section class="card scroll"><h2>ประวัติการแจ้งและการดำเนินงาน</h2><table><thead><tr><th>เวลา</th><th>เรื่อง</th><th>สถานะ</th><th>โดย</th></tr></thead><tbody>${d.history.map(h=>`<tr><td>${fmt(h.updated_at)}</td><td>#${h.rid} ${esc(h.cat)}</td><td>${badge(h.new_status)}</td><td>${esc(h.by_name)}</td></tr>`).join('')}</tbody></table></section>`;
+}
+
+async function adminRequests(){
+  const rows=await api('/api/requests'+(S.f?'?status='+S.f:''));
+  let r=null;if(S.sel){try{r=await api('/api/requests/'+S.sel)}catch{S.sel=null}}
+  const det=r?`<h2>#${r.id} ${esc(r.cat)}</h2><p>สถานะ: ${badge(r.status)}</p><div class="muted">${esc(r.location)} · แจ้งโดย ${esc(r.reporter)} · ผู้รับผิดชอบ: ${esc(r.assignee||'ยังไม่มอบหมาย')}</div><p>${esc(r.description)}</p>${r.image_data?`<img class="pic big" src="${r.image_data}" alt="รูปที่แนบ">`:'<p class="muted">ไม่มีรูปแนบ</p>'}<div style="margin-top:12px">${log(r.log)}</div>`:'<p class="muted">เลือกรายการทางซ้ายเพื่อดูรายละเอียดและรูป</p>';
+  return `<div class="grid"><section class="card scroll"><div>${['',...Object.keys(ST)].map(k=>`<button class="chip${S.f===k?' on':''}" data-f="${k}">${k?ST[k].split(' (')[0]:'ทั้งหมด'}</button>`).join('')}</div><table><thead><tr><th>เลขที่</th><th>เรื่อง</th><th>สถานะ</th></tr></thead><tbody>${rows.map(x=>`<tr tabindex="0" data-id="${x.id}" class="${x.id===S.sel?'sel':''}"><td>#${x.id}</td><td>${esc(x.cat)}<div class="muted">${esc(x.location)} · ${esc(x.full_name)}</div></td><td>${badge(x.status)}</td></tr>`).join('')}</tbody></table></section><section class="card">${det}</section></div>`;
+}
+
+async function adminCatalog(){
+  const c=await api('/api/admin/catalog');
+  return `<div class="grid"><section class="card"><h2>ฝ่ายที่รับผิดชอบ</h2><table><tbody>${c.departments.map(d=>`<tr><td>${esc(d.name)}</td><td class="act"><button class="sm" data-a="dren" data-id="${d.id}" data-n="${esc(d.name)}">แก้ชื่อ</button><button class="sm danger" data-a="ddel" data-id="${d.id}" data-n="${esc(d.name)}">ลบ</button></td></tr>`).join('')}</tbody></table><form id="fd"><label for="dn">เพิ่มฝ่ายใหม่</label><input id="dn" required><button class="pri">เพิ่มฝ่าย</button></form></section><section class="card scroll"><h2>ประเภทปัญหา</h2><table><thead><tr><th>ประเภท</th><th>ฝ่ายที่รับผิดชอบ</th><th></th></tr></thead><tbody>${c.categories.map(k=>`<tr><td>${esc(k.name)}</td><td><select aria-label="ฝ่ายของ ${esc(k.name)}" data-a="cdep" data-id="${k.id}">${dopts(c.departments,k.department_id)}</select></td><td class="act"><button class="sm" data-a="cren" data-id="${k.id}" data-n="${esc(k.name)}">แก้ชื่อ</button><button class="sm danger" data-a="cdel" data-id="${k.id}" data-n="${esc(k.name)}">ลบ</button></td></tr>`).join('')}</tbody></table><form id="fc"><label for="cn">เพิ่มประเภทใหม่</label><input id="cn" required><label for="cd">ฝ่ายที่รับผิดชอบ</label><select id="cd">${dopts(c.departments,0)}</select><button class="pri">เพิ่มประเภท</button></form></section></div>`;
+}
+
+async function adminUsers(){
+  const [us,c]=await Promise.all([api('/api/admin/users'),api('/api/admin/catalog')]);
+  const rows=us.map(u=>`<tr><td>${esc(u.full_name)}<div class="muted">${esc(u.username)}</div></td><td>${ROLE[u.role]}${u.dept?`<div class="muted">${esc(u.dept)}</div>`:''}</td><td class="act"><button class="sm" data-a="ureset" data-id="${u.id}">รีเซ็ตรหัสผ่าน</button>${u.role!=='admin'?`<button class="sm danger" data-a="udel" data-id="${u.id}" data-n="${esc(u.full_name)}">ลบ</button>`:''}</td></tr>${S.resetId===u.id?`<tr><td colspan="3"><form class="resetf" id="fr"><label for="np">รหัสผ่านใหม่ของ ${esc(u.full_name)} (อย่างน้อย 6 ตัว)</label>${pw('np','new-password')}<button class="pri">ตั้งรหัสผ่านใหม่</button><button type="button" class="link" id="frx">ยกเลิก</button></form></td></tr>`:''}`).join('');
+  return `<div class="grid"><section class="card scroll"><h2>บัญชีผู้ใช้</h2><table><thead><tr><th>ชื่อ / ชื่อผู้ใช้</th><th>บทบาท</th><th></th></tr></thead><tbody>${rows}</tbody></table></section><section class="card"><h2>เพิ่มบัญชีเจ้าหน้าที่</h2><form id="fu"><label for="fn2">ชื่อ-นามสกุล</label><input id="fn2" required><label for="un2">ชื่อผู้ใช้</label><input id="un2" required autocomplete="off"><label for="pw2">รหัสผ่าน (อย่างน้อย 6 ตัว)</label>${pw('pw2','new-password')}<label for="ud">ฝ่ายที่สังกัด</label><select id="ud"><option value="0">– ไม่ระบุ –</option>${dopts(c.departments,0)}</select><button class="pri">เพิ่มบัญชี</button></form></section></div>`;
+}
+
+function bindAdmin(){
+  const act=async(fn,t,m)=>{try{await fn();render();if(t)popup(t,m||'')}catch(x){popup('ไม่สำเร็จ',x.message,1)}};
+  const sub=(id,fn)=>{const f=$(id);if(f)f.onsubmit=e=>{e.preventDefault();fn()}};
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{S.f=b.dataset.f;S.sel=null;render()});
+  document.querySelectorAll('tr[data-id]').forEach(t=>{const go=()=>{S.sel=+t.dataset.id;render()};t.onclick=go;t.onkeydown=e=>{if(e.key==='Enter')go()}});
+  sub('#fd',()=>act(()=>api('/api/admin/departments',{method:'POST',body:{name:$('#dn').value}}),'เพิ่มฝ่ายสำเร็จ'));
+  sub('#fc',()=>act(()=>api('/api/admin/categories',{method:'POST',body:{name:$('#cn').value,department_id:+$('#cd').value}}),'เพิ่มประเภทปัญหาสำเร็จ'));
+  sub('#fu',()=>act(()=>api('/api/admin/users',{method:'POST',body:{full_name:$('#fn2').value,username:$('#un2').value,password:$('#pw2').value,department_id:+$('#ud').value}}),'เพิ่มบัญชีเจ้าหน้าที่สำเร็จ','ชื่อผู้ใช้: '+$('#un2').value.trim()));
+  sub('#fr',()=>act(()=>api('/api/admin/users/'+S.resetId+'/password',{method:'POST',body:{password:$('#np').value}}).then(()=>{S.resetId=null}),'ตั้งรหัสผ่านใหม่สำเร็จ'));
+  const x=$('#frx');if(x)x.onclick=()=>{S.resetId=null;render()};
+  document.querySelectorAll('[data-a]').forEach(el=>{
+    const a=el.dataset.a,id=el.dataset.id,n=el.dataset.n,kind=a[0]==='d'?'departments/':'categories/';
+    if(a==='cdep')el.onchange=()=>act(()=>api('/api/admin/categories/'+id,{method:'PATCH',body:{department_id:+el.value}}),'เปลี่ยนฝ่ายสำเร็จ');
+    else el.onclick=async()=>{
+      if(a==='dren'||a==='cren'){const v=await ask('แก้ชื่อ','ตั้งชื่อใหม่ให้ "'+n+'"',{input:n});if(v)act(()=>api('/api/admin/'+kind+id,{method:'PATCH',body:{name:v}}),'แก้ไขชื่อสำเร็จ')}
+      else if(a==='ddel'||a==='cdel'){if(await ask('ลบ "'+n+'" ?','ลบแล้วกู้คืนไม่ได้',{danger:1}))act(()=>api('/api/admin/'+kind+id,{method:'DELETE'}),'ลบสำเร็จ')}
+      else if(a==='ureset'){S.resetId=+id;render()}
+      else if(a==='udel'){if(await ask('ลบบัญชี "'+n+'" ?','บัญชีจะเข้าสู่ระบบไม่ได้ และหายจากรายการ\nแต่ประวัติการทำงานยังคงอยู่',{danger:1}))act(()=>api('/api/admin/users/'+id,{method:'DELETE'}),'ลบบัญชีสำเร็จ')}
+    };
+  });
+}
+
+async function adminView(){
+  const nav=`<div class="tabs2" role="tablist">${Object.keys(TABS).map(k=>`<button class="chip${S.tab===k?' on':''}" role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${TABS[k]}</button>`).join('')}</div>`;
+  const body=await({requests:adminRequests,catalog:adminCatalog,users:adminUsers}[S.tab]||adminSummary)();
+  $('#app').innerHTML=nav+body;
+  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;S.sel=null;S.f='';S.resetId=null;render()});
+  bindAdmin();
+}
+
+async function render(){
+  $('#who').innerHTML=S.user?`${esc(S.user.name)} <button class="out" id="lo">ออกจากระบบ</button>`:'';
+  if(S.user)$('#lo').onclick=logout;
+  try{
+    if(!S.user)authView();
+    else if(S.user.role==='teacher')await teacherView();
+    else if(S.user.role==='staff')await staffView();
+    else await adminView();
+  }catch(e){$('#app').innerHTML=`<p class="err">${esc(e.message)}</p>`}
+}
+fetch(API+'/api/health').catch(()=>{});  // ปลุก backend ที่หลับอยู่ระหว่างที่ผู้ใช้กรอกข้อมูล
+render();
+</script>
+</body>
+</html>
