@@ -101,7 +101,7 @@ function logout(){S.token=S.user=null;S.sel=null;try{localStorage.clear()}catch{
 function saveLogin(d){S.token=d.token;S.user=d.user;S.msg='';try{localStorage.setItem('t',d.token);localStorage.setItem('u',JSON.stringify(d.user))}catch{}}
 
 function popup(t,m,bad){
-  const  o=document.createElement('div');o.className='ov';o.setAttribute('role','alertdialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',t);
+  const o=document.createElement('div');o.className='ov';o.setAttribute('role','alertdialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',t);
   o.innerHTML=`<div class="dlg"><div class="ic${bad?' bad':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${bad?'M6 6l12 12M18 6L6 18':'M5 13l4 4L19 7'}"/></svg></div><h2>${esc(t)}</h2><p class="muted">${esc(m)}</p><button class="pri" id="pk">ตกลง</button></div>`;
   document.body.appendChild(o);
   const x=()=>o.remove();
